@@ -43,21 +43,25 @@ class annuc:
 		import re, itertools
 
 		with open(self.hass_input, "r") as file:
+			search_list = list(itertools.islice(file, self.slicesize))
 			while True:
-				search_list = list(itertools.islice(file, 1000))
+				print("wut")
 				if not search_list:
 					break
 
 
 				search_for = re.compile("{}\\t{}\\t.*".format(self.chr_, self.pos))
 				finding = list(filter(search_for.match, search_list))
+				# print(finding)
 				if finding:
 					finding_list = finding[0].split("\t")
-					result = [finding_list[:3], finding_list[4:5]]
+					result = [finding_list[0],finding_list[1],finding_list[3],finding_list[4]]
+					print(result)
 					yield result
-				
+					print("2")
 				elif not finding:
-					pass
+					print("no finding")
+					search_list = list(itertools.islice(file, self.slicesize))
 				
 				else:
 					print("We have an issue")
@@ -92,8 +96,9 @@ class annuc:
 			except:
 				raise Exception
 
-	def filter_chunk(self):
+	def filter_chunk(self, slicesize):
 		import time	
+		self.slicesize = slicesize
 		with open(self.output, "w") as file:
 			spec_gen = self.specific_input()
 			hass_gen = self.hass()
@@ -104,8 +109,9 @@ class annuc:
 				start = time.time()
 				start2 = time.time()
 				for self.chr_, self.pos in spec_gen:
-					append_this = next(self.hass())
-					# append_this = next(self.chunk_search())
+
+					append_this = next(self.chunk_search())
+					# print(append_this)
 					text = text + "{}\t{}\t{}\t{}\n".format(*append_this)
 					if count == 100:
 						end2 = time.time()
@@ -155,5 +161,5 @@ if __name__ == '__main__':
 	
 
 	a = annuc(dictinput="cleaned_sample", hass="cleaned_hassle.vcf", threads=2, count=100, output="3.vcf")
-	a.filter_hassle()
+	a.filter_chunk(slicesize=10000)
 	a.timed_completion()
