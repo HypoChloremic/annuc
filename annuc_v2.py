@@ -5,11 +5,18 @@
 
 class annuc:
 	def __init__(self, **kwargs):
+		# Imports
+
 		# Kwarg handling
 		self.spec_input = kwargs["dictinput"]
 		self.hass_input = kwargs["hass"]
-		self.output		= kwargs["output"]
+		self.output = "{}_"  #kwargs["output"]
 		self.searchtype = kwargs["searchtype"]
+		self.taildata = kwargs["taildata"]
+		self.tailsample = kwargs["tailsample"]
+		self.amount = kwargs["amount"]
+		self.header = kwargs["header"]
+		# where to start from. 
 		self.pos_in_iter = 147
 		self.endstart    = list()
 
@@ -39,15 +46,17 @@ class annuc:
 	def hass(self):
 		with open(self.hass_input, "r") as hass_file:
 			for i, line in enumerate(hass_file):
-				line = line.split("\t")
-				if len(line) >= 4:
+
+				if i > self.pos_in_iter:
+					line = line.split("\t")
 					temp = [ line[0],line[1], line[3], line[4] ]
 					if self.chr_ and self.pos in temp:
 						self.pos_in_iter = i
 						yield temp
+					else:
+						pass	
 				else:
 					pass
-
 
 	def chunk_search(self):
 		import re, itertools
@@ -123,7 +132,10 @@ class annuc:
 	def timed_completion(self):
 		print("Tot time: {}".format(self.endstart))
 
-	def prod_counter(self, infile=None, outcountfile=None):
+
+
+
+	def plot_results(self, infile=None):
 		import matplotlib.pyplot as plt
 		import numpy as np
 		counts=dict()
@@ -134,11 +146,8 @@ class annuc:
 				counts[element] = 1
 		
 		ordered_count = iter(counts)
-		with open(outcountfile, "a") as file:
-			for entry in ordered_count:
-				text = "{}	{}\n".format(entry, counts[entry])
-				file.write(text)
-			
+		with open("count_results.vcf", "a") as file:
+			pass
 
 	def basepair_gen(self, infile=None):
 		with open(infile, "r") as file:
@@ -146,3 +155,13 @@ class annuc:
 				line = line.replace("\n", "").split("\t")
 				yield "{}{}".format(line[2],line[3])
 
+	# def hassle_get(self):
+	# 	pass
+	# def spec_get(self):
+	# 	pass
+	# def hassle_redef(self):
+	# 	pass
+	# def spec_input(self):
+	# 	pass
+	# hassle 	= property(hassle_get, hassle_redef)
+	# spec_input = property(spec_get, spec_redef)
