@@ -2,11 +2,17 @@
 # (c) 2017	Ali Rassolie
 
 
+import time	
 class annuc:
 	def __init__(self, **kwargs):
+		# Imports
+
+		# Kwarg handling
 		self.spec_input = kwargs["dictinput"]
-		self.hassle_input = kwargs["hassle"]
+		self.hass_input = kwargs["hass"]
 		self.threads = kwargs["threads"]
+		self.count = kwargs["count"]
+		self.output = kwargs["output"]
 		# where to start from. 
 		self.pos_in_iter = 147
 
@@ -16,10 +22,10 @@ class annuc:
 				temp_info = spec_line.split("\t")
 				yield str(temp_info[0]), str(temp_info[1].replace("\n",""))
 
-	def hassle(self):
-		with open(self.hassle_input, "r") as hassle_file:
-			for i, line in enumerate(hassle_file):
-				
+	def hass(self):
+		with open(self.hass_input, "r") as hass_file:
+			for i, line in enumerate(hass_file):
+
 				if i > self.pos_in_iter:
 					line = line.split("\t")
 					temp = [ line[0],line[1], line[3], line[4] ]
@@ -27,22 +33,30 @@ class annuc:
 						self.pos_in_iter = i
 						yield temp
 					else:
-						self.i = i	
+						pass	
 				else:
-					self.i = i
+					pass
 					
 
 	def filter(self):
-		with open("defínitive_output_v3.vcf", "a") as file:
+		with open(self.output, "a") as file:
 			spec_gen = self.specific_input()
-			hassle_gen = self.hassle()
+			hass_gen = self.hass()
 			try:
-				while True:
-					self.chr_, self.pos = next(spec_gen)
-					append_this = next(self.hassle())
-					text = "{}	{}	{}	{}\n".format(append_this[0],append_this[1],append_this[2],append_this[3])
-					print(text)
-					file.write(text)
+				text = ""
+				count = 0
+				start = time.time()
+				for self.chr_, self.pos in spec_gen:
+					append_this = next(self.hass())
+					text = text + "{}\t{}\t{}\t{}\n".format(*append_this)
+					if count == self.count:
+						file.write(text)
+						text = ""
+						end = time.time()
+						print(end-start)
+						start = time.time()
+						count = 0
+					count += 1
 			
 			except Exception as e:
 				print(e)
@@ -52,5 +66,13 @@ class annuc:
 
 
 if __name__ == '__main__':
-	a = annuc(dictinput="malbac_4_vcfoutput", hassle="malbac_4.freebayes.bwa.vcf", threads=2)
+	a = annuc(dictinput="malbac_4_vcfoutput", hass="malbac_4.freebayes.bwa.vcf", threads=2, count=100, output="1.vcf")
 	a.filter()
+
+
+
+
+	# with open("malbac_4.freebayes.bwa.vcf", "r") as hass_file:
+	# 	print(hass_file.tell())
+		# a = hass_file.readlines(100000)
+		# print(a)
