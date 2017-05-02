@@ -1,5 +1,5 @@
 # Nucleotide analysis from VCF files
-# (c) 2017	Ali Rassolie
+# (c) 2017 Ali Rassolie
 
 
 import time	
