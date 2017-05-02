@@ -1,6 +1,6 @@
 # Nucleotide analysis from VCF files
 # (c) 2017 Ali Rassolie
-
+# Lumina sequencing
 
 import time	
 class annuc:
@@ -59,7 +59,7 @@ class annuc:
 					count += 1
 			
 			except Exception as e:
-				print(e)
+				print("Ehh{}".format(e))
 
 
 
