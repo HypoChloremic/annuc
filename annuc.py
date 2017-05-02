@@ -134,7 +134,7 @@ class annuc:
 				counts[element] = 1
 		
 		ordered_count = iter(counts)
-		with open(outcountfile, "a") as file:
+		with open(outcountfile, "w") as file:
 			for entry in ordered_count:
 				text = "{}	{}\n".format(entry, counts[entry])
 				file.write(text)
