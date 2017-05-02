@@ -13,7 +13,6 @@ class annuc:
 		self.threads = kwargs["threads"]
 		self.count = kwargs["count"]
 		self.output = kwargs["output"]
-		self.searchtype = kwargs["searchtype"]
 		
 		# where to start from. 
 		self.pos_in_iter = 147
@@ -46,20 +45,16 @@ class annuc:
 		with open(self.hass_input, "r") as file:
 			search_list = list(itertools.islice(file, self.slicesize))
 			while True:
-				# print("wut")
 				if not search_list:
 					break
 
 
 				search_for = re.compile("{}\\t{}\\t.*".format(self.chr_, self.pos))
 				finding = list(filter(search_for.match, search_list))
-				# print(finding)
 				if finding:
 					finding_list = finding[0].split("\t")
 					result = [finding_list[0],finding_list[1],finding_list[3],finding_list[4]]
-					# print(result)
 					yield result
-					# print("2")
 				elif not finding:
 					# print("no finding")
 					search_list = list(itertools.islice(file, self.slicesize))
@@ -68,18 +63,42 @@ class annuc:
 					print("We have an issue")
 					
 
+	# def filter_hassle(self):
+	# 	import time	
+	# 	with open(self.output, "w") as file:
+	# 		spec_gen = self.specific_input()
+	# 		hass_gen = self.hass()
+	# 		chunk_gen = self.chunk_search()
+	# 		try:
+	# 			text = ""
+	# 			count = 0
+	# 			start = time.time()
+	# 			start2 = time.time()
+	# 			for self.chr_, self.pos in spec_gen:
+	# 				append_this = next(self.hass())
+	# 				# append_this = next(self.chunk_search())
+	# 				text = text + "{}\t{}\t{}\t{}\n".format(*append_this)
+	# 				if count == 100:
+	# 					end2 = time.time()
+	# 					print(end2-start2)
+	# 					start2 = time.time()
+	# 					count = 0
+	# 				count += 1
+				
+	# 			file.write(text)
+	# 			end = time.time()
+	# 			self.endstart = end - start
+				
+	# 		except:
+	# 			raise Exception
 
-	def filter(self, slicesize):
+	def filter_chunk(self, slicesize):
 		import time	
 		self.slicesize = slicesize
 		with open(self.output, "w") as file:
 			spec_gen = self.specific_input()
-			if self.searchtype == "hassle":
-				gen = self.hass()
-			elif self.searchtype == "chunk":
-				gen = self.chunk_search()
-			else:
-				print("Please enter searchtype:")
+			hass_gen = self.hass()
+			chunk_gen = self.chunk_search()
 			try:
 				text = ""
 				count = 0
@@ -87,7 +106,7 @@ class annuc:
 				start2 = time.time()
 				for self.chr_, self.pos in spec_gen:
 
-					append_this = next(gen)
+					append_this = next(hass_gen)
 					# print(append_this)
 					text = text + "{}\t{}\t{}\t{}\n".format(*append_this)
 					if count == 100:
@@ -129,7 +148,7 @@ class annuc:
 						break
 
 	def timed_completion(self):
-		print("Tot time: {}".format(self.endstart))
+		print(self.endstart)
 
 
 
@@ -137,6 +156,6 @@ class annuc:
 if __name__ == '__main__':
 	
 
-	a = annuc(dictinput="malbac_4_vcfoutput", hass="malbac_4.freebayes.bwa.vcf", threads=2, count=10000, output="3.vcf", searchtype="hassle")
-	a.filter(slicesize=1)
+	a = annuc(dictinput="cleaned_sample", hass="cleaned_hassle.vcf", threads=2, count=100, output="3.vcf")
+	a.filter_chunk(slicesize=10)
 	a.timed_completion()
