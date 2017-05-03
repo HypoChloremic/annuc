@@ -81,13 +81,6 @@ class annuc:
 	def filter(self, slicesize):
 		import time	
 		self.slicesize = slicesize
-		# for pos_of_file in range(self.amount):
-			# self.output = "{}_{}_results.vcf".format(self.header, pos_of_file)
-			# self.hass_input = "{}_{}_{}".format(self.header, pos_of_file, self.taildata)
-			# self.spec_input = "{}_{}_{}".format(self.header, pos_of_file, self.tailsample)
-			# print(self.hass_input, self.spec_input)
-
-
 		with open(self.output, "w") as file:
 			spec_gen = self.specific_input()
 			if self.searchtype == "hassle":

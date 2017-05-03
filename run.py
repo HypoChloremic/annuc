@@ -7,7 +7,8 @@ class constants:
 
 def run_annuc(searchtype=None, amount=2, header=None, taildata=None, tailsample=None):
 	import annuc
-	
+
+
 	for pos_of_file in range(amount):
 		output = "{}_{}_results.vcf".format(header, pos_of_file)
 		hass_input = "{}_{}_{}".format(header, pos_of_file, taildata)
@@ -31,8 +32,8 @@ def histogram_plot(infile=None):
 	base = range(len(combo))
 	rects = plt.bar(base, amount, align="center", width=0.5)
 	plt.xticks(base, combo)
-	plt.ylabel("Number of appearances")
-	plt.xlabel("Ref-Alt combination")
+	plt.ylabel("Occurences")
+	plt.xlabel("Nucleotide transitions in variant cells uniquely detected in single cells")
 	plt.title("{}".format(infile))
 	for rect in rects:
 		height = rect.get_height()
@@ -40,6 +41,17 @@ def histogram_plot(infile=None):
 	plt.show()
 
 if __name__ == '__main__':
-	run_annuc(searchtype="hassle", header="malbac", tailsample="sampleoutput.vcf", taildata="vcfoutput.vcf", amount=2)
+	import argparse as ap
+
+	the_arguments = ap.ArgumentParser(
+		prog="NUCLEOTIDE ANALYSIS")
+
+	the_arguments.add_argument("-n", "--number",  help="Number of files", nargs=1)
+
+	# Storing the parsed arguments
+	opts = the_arguments.parse_args()
+	number = int(opts.number[0]) 
+
+	run_annuc(searchtype="hassle", header="malbac", tailsample="sampleoutput.vcf", taildata="vcfoutput.vcf", amount=number)
 	for file in constants.counter_files:
 		histogram_plot(infile=file)
