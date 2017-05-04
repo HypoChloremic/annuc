@@ -22,6 +22,7 @@ class annuc:
 						file_out.write(line)
 					else:
 						break
+		
 		with open("malbac_4_vcfoutput", "rb") as file_in:
 			with open("cleaned_sample", "wb") as file_out:
 				for i, line in enumerate(file_in):
@@ -38,7 +39,7 @@ class annuc:
 
 	def hass(self):
 		with open(self.hass_input, "r") as hass_file:
-			for i, line in enumerate(hass_file):
+			for line in hass_file:
 				line = line.split("\t")
 				if len(line) >= 4:
 					temp = [ line[0],line[1], line[3], line[4] ]
@@ -55,22 +56,22 @@ class annuc:
 		with open(self.hass_input, "r") as file:
 			search_list = list(itertools.islice(file, self.slicesize))
 			while True:
-				# print("wut")
+				
 				if not search_list:
 					break
 
 
 				search_for = re.compile("{}\\t{}\\t.*".format(self.chr_, self.pos))
 				finding = list(filter(search_for.match, search_list))
-				# print(finding)
+			
 				if finding:
 					finding_list = finding[0].split("\t")
 					result = [finding_list[0],finding_list[1],finding_list[3],finding_list[4]]
-					# print(result)
+					
 					yield result
-					# print("2")
+					
 				elif not finding:
-					# print("no finding")
+					
 					search_list = list(itertools.islice(file, self.slicesize))
 				
 				else:

@@ -50,7 +50,10 @@ if __name__ == '__main__':
 
 	# Storing the parsed arguments
 	opts = the_arguments.parse_args()
-	number = int(opts.number[0]) 
+	try:
+		number = int(opts.number[0]) 
+	except Exception as e:
+		raise e
 
 	run_annuc(searchtype="hassle", header="malbac", tailsample="sampleoutput.vcf", taildata="vcfoutput.vcf", amount=number)
 	for file in constants.counter_files:
