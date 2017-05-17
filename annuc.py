@@ -10,14 +10,22 @@ class annuc:
 		self.hass_input = kwargs["hass"]
 		self.output		= kwargs["output"]
 		self.searchtype = kwargs["searchtype"]
+		self.pos_in_iter = 147
 		self.endstart    = list()
 
 
-	def clean(self, infile=None, max_=None, **kwargs):
-		with open(infile, "rb") as file_in:
-			with open("cleaned_{}".format(infile), "wb") as file_out:
+	def clean(self):
+		with open("malbac_4.freebayes.bwa.vcf", "rb") as file_in:
+			with open("cleaned_hassle.vcf", "wb") as file_out:
 				for i, line in enumerate(file_in):
-					if i < max_:
+					if i < 50000:
+						file_out.write(line)
+					else:
+						break
+		with open("malbac_4_vcfoutput", "rb") as file_in:
+			with open("cleaned_sample", "wb") as file_out:
+				for i, line in enumerate(file_in):
+					if i < 10000:
 						file_out.write(line)
 					else:
 						break
@@ -30,13 +38,15 @@ class annuc:
 
 	def hass(self):
 		with open(self.hass_input, "r") as hass_file:
-			for line in hass_file:
+			for i, line in enumerate(hass_file):
 				line = line.split("\t")
 				if len(line) >= 4:
 					temp = [ line[0],line[1], line[3], line[4] ]
 					if self.chr_ and self.pos in temp:
+						self.pos_in_iter = i
 						yield temp
-				
+				else:
+					pass
 
 
 	def chunk_search(self):
@@ -52,7 +62,7 @@ class annuc:
 
 				search_for = re.compile("{}\\t{}\\t.*".format(self.chr_, self.pos))
 				finding = list(filter(search_for.match, search_list))
-			
+				
 				if finding:
 					finding_list = finding[0].split("\t")
 					result = [finding_list[0],finding_list[1],finding_list[3],finding_list[4]]
@@ -71,6 +81,8 @@ class annuc:
 	def filter(self, slicesize):
 		import time	
 		self.slicesize = slicesize
+
+
 		with open(self.output, "w") as file:
 			spec_gen = self.specific_input()
 			if self.searchtype == "hassle":
@@ -78,15 +90,17 @@ class annuc:
 			elif self.searchtype == "chunk":
 				gen = self.chunk_search()
 			else:
-				print("Please enter searchtype")
+				print("Please enter searchtype:")
 			try:
 				text = ""
 				count = 0
 				start = time.time()
 				start2 = time.time()
 				for self.chr_, self.pos in spec_gen:
+
 					append_this = next(gen)
-					text = text+"{}\t{}\t{}\t{}\n".format( *append_this) # putting text inside format will slow down with 100%, needs inv.
+					# print(append_this)
+					text = text + "{}\t{}\t{}\t{}\n".format(*append_this)
 					if count == 100:
 						end2 = time.time()
 						print(end2-start2)
@@ -100,6 +114,9 @@ class annuc:
 				
 			except:
 				raise Exception
+
+	def timed_completion(self):
+		print("Tot time: {}".format(self.endstart))
 
 	def prod_counter(self, infile=None, outcountfile=None):
 		import matplotlib.pyplot as plt
@@ -117,12 +134,11 @@ class annuc:
 				text = "{}	{}\n".format(entry, counts[entry])
 				file.write(text)
 			
+
 	def basepair_gen(self, infile=None):
 		with open(infile, "r") as file:
 			for line in file:
 				line = line.replace("\n", "").split("\t")
-				yield "{}{}".format(line[2],line[3])
-
-	def timed_completion(self):
-		return "Tot time: {}".format(self.endstart)
+				# This should output the ref and the alt with a separator ">"
+				yield "{}>{}".format(line[2],line[3])
 
